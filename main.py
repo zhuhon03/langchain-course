@@ -1,5 +1,5 @@
 # from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 
 from dotenv import load_dotenv
 
@@ -42,15 +42,15 @@ def timer(fn):
 
 class Source(BaseModel):
     """Schema for a source used by the agent"""
-    url: str = Field(description="The URL of the source")
+    model_config = ConfigDict(extra="forbid")
+    url: HttpUrl = Field(description="The URL of the source")
 
 
 class AgentResponse(BaseModel):
     """Schema for agent response with answer and sources"""
-    answer: str = Field(description="Thr agent's answer to the query")
-    sources: list[Source] = Field(
-        default_factory=list, description="List of sources used to generate the answer"
-    )
+    model_config = ConfigDict(extra="forbid")
+    answer: str = Field(description="The agent's answer to the query")
+    sources: list[Source] = Field(description="List of sources used to generate the answer; empty list if none")
 
 
 llm = ChatOpenAI(model="gpt-5-nano")
