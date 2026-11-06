@@ -1,6 +1,6 @@
 # from typing import List
+from pydantic import BaseModel, Field
 
-# from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,6 +9,7 @@ from langchain.agents import create_agent
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 # from tavily import TavilyClient
@@ -39,23 +40,21 @@ def timer(fn):
 #     return tavily.search(query=query)
 
 
-# class Source(BaseModel):
-#     """Schema for a source used by the agent"""
-
-#     url: str = Field(description="The URL of the source")
-
-
-# class AgentResponse(BaseModel):
-#     """Schema for agent response with answer and sources"""
-
-#     answer: str = Field(description="Thr agent's answer to the query")
-#     sources: List[Source] = Field(
-#         default_factory=list, description="List of sources used to generate the answer"
-#     )
+class Source(BaseModel):
+    """Schema for a source used by the agent"""
+    url: str = Field(description="The URL of the source")
 
 
-# llm = ChatOpenAI(model="gpt-5")
-llm = ChatOllama(model="llama3.2:latest")
+class AgentResponse(BaseModel):
+    """Schema for agent response with answer and sources"""
+    answer: str = Field(description="Thr agent's answer to the query")
+    sources: list[Source] = Field(
+        default_factory=list, description="List of sources used to generate the answer"
+    )
+
+
+llm = ChatOpenAI(model="gpt-5-nano")
+#llm = ChatOllama(model="llama3.2:latest")
 
 tools = [TavilySearch()]
 # tools = [search]
@@ -65,9 +64,10 @@ agent = create_agent(
     model=llm,
     tools=tools,
     system_prompt="""
-                    You are a helpful assistant. When a tool returns information, 
+                You are a helpful assistant. When a tool returns information, 
                   treat it as accurate and current, and answer the user using it.
                   """,
+    response_format=AgentResponse
 )
 
 @timer
@@ -82,6 +82,7 @@ def main():
         }
     )
     print(result)
+
 
 
 if __name__ == "__main__":
