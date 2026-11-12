@@ -60,6 +60,8 @@ def get_tool_descriptions(tools_dict:dict)->str:
         descriptions.append(f"{tool_name}{signature} - {docstring}")
     return "\n".join(descriptions)
 
+
+
 tool_descriptions = get_tool_descriptions(tools)
 
 tool_names =', '.join(tools.keys())
@@ -119,7 +121,7 @@ def run_agent(question: str):
         response = ollama_chat_traced(
             model = MODEL,
             messages=[{'role':'user', 'content': full_prompt}],
-            options={'stop':['/nObservation'], 'temperature':0}
+            options={'stop':['\nObservation'], 'temperature':0}
             )
         output=response.message.content
         print(f"LLM Output:\n{output}")
